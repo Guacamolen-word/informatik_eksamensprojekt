@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Font page</title>
+    <title>Graphs</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="icon" type="image/img" href="./icon/cloudprotato_transparent.png">
 </head>
 <body>
     <header>
         <div class="container">
-            <div class="title" id="containerChild">
-                <h1>CloudPotato</h1>
-            </div>
+            <div id="containerChild"><h1>CloudPotato</h1></div>
         <div class="logo" id="containerChild">
             <img src="./icon/cloudprotato_transparent.png" alt="logo"  width="50px"; height= "50px";>
         </div>
@@ -23,8 +22,32 @@
       <a href="./graph.html">Graph</a>
       <a href="./data.html">Data</a>
       <a href="./about.html">About</a>
-      <a href="./login.html">login</a>
     </nav>
   </header>
+  <div>
+    <canvas id="myChart"></canvas>
+  </div>
+  <script>
+    const ctx = document.getElementById('myChart');
+  
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+          label: '# of Votes',
+          data: [12, 19, 3, 5, 2, 3],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+    </script>
 </body>
 </html>
