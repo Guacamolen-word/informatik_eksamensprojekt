@@ -1,0 +1,5 @@
+-I
+./lib/
+-std=c++20
+-I/usr/include/gtk-4.0/
+-I/usr/include/glib-2.0/

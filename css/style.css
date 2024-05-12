@@ -1,0 +1,47 @@
+
+body{
+    background-color:#ffffff;
+}
+header{
+    height: 200px;
+    width: 100%;
+    background-color: #36648b;
+    padding: 0px 0px;
+}
+h1{
+    font-size: 40px;
+    left: 43px;
+    top: 0px;
+    font-family: Roboto Slab Thin, Source Sans Pro Light, Roboto Medium;
+    color: #f4d8a0;
+    font-weight: 100;
+  }
+nav{ 
+    position: relative;
+    height: 50px;
+    line-height: 50px;
+    width: 100%;
+    background-color: #0000001c;
+  }
+a{
+    color: #ffffff;
+    display: inline-block;
+    font-family: Source Sans Pro Light, Roboto Medium, Roboto Slab Thin ;
+    padding: 10px 15px;
+    line-height: 25px;
+    text-decoration: none;
+    border-radius: 2px;
+
+}
+.logo{
+    top: 10px;
+}
+#containerChild{
+    float: left;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.about_text{
+    text-align: center;
+}

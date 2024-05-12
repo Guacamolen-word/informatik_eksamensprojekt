@@ -1,0 +1,86 @@
+
+:root {
+    --blue: #36648b;
+    --borderRadius: 1em;
+    --shadow: 10px 8px 5px black;
+}
+
+html{
+    height: 100%;
+}
+
+body{
+    background: rgb(23,35,45);
+    background: linear-gradient(0deg, rgba(23,35,45,1) 0%, rgba(35,38,40,1) 8%, rgba(37,39,42,1) 23%, rgba(20,20,22,1) 100%) no-repeat; 
+}
+
+.loginFormContainer{
+    width: 23em;
+    justify-content: center;
+    align-items: center;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    transform: translate(-50%, -80%);
+}
+
+.login_button{
+    align-items: flex-end;
+    top: 50px;
+    height: fit-content;
+}
+
+.loginForm{
+    width: 15em;
+    border: 3px #36648b;
+    width: 100%;
+    text-align: center;
+    top: 110px;
+    background-color: var(--blue);
+    border-radius: 1em;
+    box-shadow: var(--shadow);
+}
+
+.login{
+    position: relative;
+    right: 30px;
+}
+
+.loginField{
+    border-radius: var(--borderRadius);
+    margin-top: 2.5em;
+    height: 2em;
+    width: 20em;
+}
+
+.loginButton {
+    border-radius: var(--borderRadius);
+    width: 15em;
+    height: 2.5em;
+    background-color: #ffffff;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.loginTitleHeader{
+    font-size: 3em;
+    margin-bottom: 2em;
+    overflow: visible;
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+
+    background-color: var(--blue);
+    color: #ffffff;
+    border-radius: var(--borderRadius);
+    box-shadow: var(--shadow);
+}
+.loginTitleHeaderContainer {
+    display: flex;
+    justify-content: center;
+}
