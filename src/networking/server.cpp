@@ -32,11 +32,8 @@ void networking::ssl_client_handler(int client, db_handler::db *db_connection,
     if(req_size <= 0) {
         std::cout << "Blank request\n";
 
-#ifndef _WIN32
-        close(client);
-#else
-	closesocket(client);
-#endif
+        CLOSE_SOCKET(client);
+
         SSL_shutdown(c_ssl);
         SSL_free(c_ssl);
         delete[] buffer;
@@ -60,11 +57,8 @@ void networking::ssl_client_handler(int client, db_handler::db *db_connection,
     SSL_shutdown(c_ssl);
     SSL_free(c_ssl);
 
-#ifndef _WIN32
-        close(client);
-#else
-	closesocket(client);
-#endif
+    CLOSE_SOCKET(client);
+
     delete new_request;
     delete[] buffer;
 }
@@ -83,11 +77,8 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
     if(req_size <= 0) {
         std::cout << "Blank request\n";
 
-#ifndef _WIN32
-        close(client);
-#else
-	closesocket(client);
-#endif
+        CLOSE_SOCKET(client);
+
         delete[] buffer;
         return;
     }
@@ -112,18 +103,17 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
 
     fclose(client_stream);
 
-#ifndef _WIN32
-        close(client);
-#else
-	closesocket(client);
-#endif
+    CLOSE_SOCKET(client);
+
     delete new_request;
     delete[] buffer;
 }
 
 
 // Init server and prepare socket
-server::server(std::string ip, short port, bool ssl, std::string certificate, std::string key) {
+server::server(std::string ip, short port, bool ssl,
+        std::string certificate, std::string key,
+        const char *db_user, const char *db_password, const char *db_name) {
 
     // Prepare openssl library if SSL encryption is enabled
     if(ssl) {
@@ -147,7 +137,7 @@ server::server(std::string ip, short port, bool ssl, std::string certificate, st
     // Creates TCP socket
     this->server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    // Socket info
+// Socket info
     this->info.sin_family = AF_INET;
     this->info.sin_port = htons(port);
     this->info.sin_addr.s_addr = inet_addr(ip.c_str());
@@ -163,12 +153,12 @@ server::server(std::string ip, short port, bool ssl, std::string certificate, st
     this->ssl = ssl;
 
     // TODO: replace constants with variables 
-    this->db_connection = (new db_handler::db("localhost", "root", "123", "cloudpotato"));
+    this->db_connection = (new db_handler::db("localhost", db_user, db_password, db_name));
 }
 
-// On server exist
+// On server exit
 server::~server() {
-    closesocket(this->server_socket);
+    CLOSE_SOCKET(this->server_socket);
 
     // Cleanup OpenSSL library resources
     if(this->ssl) {
@@ -188,6 +178,15 @@ void server::start() {
         ssl_listen_handler();
     else
         listen_handler();
+}
+
+void server::stop() {
+    this->listening = false;
+    CLOSE_SOCKET(this->server_socket);
+}
+
+void server::stop_listening() {
+    this->listening = false;
 }
 
 // Non-SSL listener
@@ -219,4 +218,13 @@ void server::ssl_listen_handler() {
         t.detach(); // Detatch tells the thread to exit once it's done(rather than needing to use join)
     }
 
+    std::cout << "listener stopped\n";
+
 }
+
+// For multi-threading purposes
+void networking::server_starter(server *server_ptr) {
+    server_ptr->start();
+}
+
+

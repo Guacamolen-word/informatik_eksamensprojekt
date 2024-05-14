@@ -13,7 +13,7 @@ namespace json_handler {
         private:
             std::vector<struct json_field> values;
             std::string formatted_json; 
-            bool done;
+//            bool done;
 
         public:
             json();

@@ -151,6 +151,7 @@ void error_response(std::unique_ptr<page> response_page,
                      db_handler::db *db, struct networking::client_stream client) {
 
     (void)req;
+    (void)db;
     response_page->set_status_code(INTERNAL_SERVER_ERROR);
     response_page->response(client);
 
@@ -164,10 +165,8 @@ void signal_handler(int sig) {
 int main(int argc, char **argv) {
     std::signal(SIGINT, signal_handler);
 
-    GtkApplication *application = gtk_application_new("CloudPotato Server Manager", G_APPLICATION_DEFAULT_FLAGS);
-    g_signal_connect(application, "activate", G_CALLBACK(gui::load_gui), NULL);
-    g_application_run( G_APPLICATION(application), argc, argv );
-    g_object_unref(application); 
+    gtk_init(&argc, &argv);
+    gui::load_gui();
 
     /*
     std::unique_ptr<networking::server> server (new networking::server("10.0.2.15", 8080, true, 

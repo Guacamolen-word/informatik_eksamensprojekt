@@ -2,15 +2,15 @@
 CC = clang++
 
 SRC = $(wildcard ./src/**/*.cpp ./src/*.cpp) main.cpp
-LIB = -I./lib/ $(shell mariadb_config --cflags)
+LIB = -I./lib/ $(shell mariadb_config --cflags) $(shell pkg-config --cflags gtk+-3.0) -I/usr/include/gtk-3.0/
 OBJ = obj
 
 CFLAGS = -Wall -Wextra -std=c++20
 DEBUG_FLAGS = -g
 RELEASE_FLAGS = -O2
 
-LD_FLAGS = -lpthread -lm -luuid -lcrypto -lssl $(shell mariadb_config --libs)
-LD_FLAGS_WINDOWS = -lole32 -lpthread -lws2_32 -lm -luuid -lcrypto -lssl $(shell mariadb_config --libs)
+LD_FLAGS = -rdynamic -lpthread -lm -luuid -lcrypto -lssl $(shell mariadb_config --libs) $(shell pkg-config --libs gtk+-3.0)
+LD_FLAGS_WINDOWS = -lole32 -lpthread -lws2_32 -lm -luuid -lcrypto -lssl $(shell mariadb_config --libs) $(shell pkg-config --libs gtk+-3.0)
 
 debug:
 	$(CC) -c $(SRC) $(CFLAGS) $(DEBUG_FLAGS) $(LIB)
