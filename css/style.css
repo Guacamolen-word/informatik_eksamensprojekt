@@ -3,22 +3,24 @@ body{
     background-color:#ffffff;
 }
 header{
-    height: 200px;
+    height: 100px;
     width: 100%;
     background-color: #36648b;
     padding: 0px 0px;
 }
 h1{
     font-size: 40px;
-    left: 43px;
-    top: 0px;
+    position: fixed;
+    left: 10px;
+    top: -10px;
     font-family: Roboto Slab Thin, Source Sans Pro Light, Roboto Medium;
     color: #f4d8a0;
     font-weight: 100;
   }
 nav{ 
-    position: relative;
-    height: 50px;
+    position: fixed;
+    top: 60px;
+    height: 48px;
     line-height: 50px;
     width: 100%;
     background-color: #0000001c;
@@ -34,14 +36,40 @@ a{
 
 }
 .logo{
-    top: 10px;
+    top: 15px;
+    position: fixed;
+    left: 220px;
 }
 #containerChild{
     float: left;
     display: inline-block;
     vertical-align: middle;
 }
-
+.login_button{
+    align-items: flex-end;
+    top: 50px;
+    height: fit-content;
+}
+form{
+    border: 3px #36648b;
+    display: inline-block;
+    position: sticky;
+    width: 100%;
+    text-align: center;
+    top: 110px;
+}
+.login{
+    position: relative;
+    right: 30px;
+}
 .about_text{
     text-align: center;
+}
+footer{
+    text-align: center;
+    background-color: #36648b;
+    padding: 3px;
+    position: fixed;
+    width: 100%;
+    bottom: 10px;
 }
