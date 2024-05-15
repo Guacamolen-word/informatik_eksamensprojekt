@@ -6,6 +6,7 @@
 #include "../db.hpp"
 #include "server.hpp"
 #include "../json/json.hpp"
+#include "../util.hpp"
 
 using response_handler::read_file;
 using response_handler::page;

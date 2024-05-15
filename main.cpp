@@ -16,6 +16,20 @@
         return;\
     }
 
+#define TEAPOT_EXIT()\
+{\
+    response_page->set_status_code(IM_A_TEATPOT);\
+    response_page->response(client);\
+    return;\
+}
+
+#define ERROR_EXIT()\
+{\
+    response_page->set_status_code(INTERNAL_SERVER_ERROR);\
+    response_page->response(client);\
+    return;\
+}
+
 void graph(std::unique_ptr<page> response_page, 
               request_handler::request *req,
               db_handler::db *db,
@@ -26,7 +40,7 @@ void graph(std::unique_ptr<page> response_page,
     response_page->set_header("html/header.html");
     response_page->set_footer("html/footer.html");
 
-    std::string body_content; response_handler::read_file("html/graph.html", body_content);
+    std::string body_content; response_handler::read_file("html/graphs.html", body_content);
     response_page->body << body_content;
 
     response_page->response(client);
@@ -39,29 +53,45 @@ void get_data(std::unique_ptr<page> response_page,
 
     VALDIDATE_SESION();
 
-    if(!request_handler::key_exists("filter", req->posts)){
+    if(!request_handler::key_exists("filter", req->posts))
+        ERROR_EXIT();
 
-        response_page->set_status_code(INTERNAL_SERVER_ERROR);
-        response_page->response(client);
-        return;
-    }
-    
     response_page->set_filetype(JSON);
-//    std::unique_ptr<json_handler::json> json_formatter (new json_handler::json());
 
-    db->query("SELECT time," + req->posts["filter"] + " FROM data");
+    if( !request_handler::key_exists("time_a", req->posts) && !request_handler::key_exists("time_b", req->posts) ) {
+        std::cout << "Fetching all data\n";
+        db->query("SELECT time," + req->posts["filter"] + " FROM data");
+
+    }else if(request_handler::key_exists("time_a", req->posts) && request_handler::key_exists("time_b", req->posts)) {
+        if( !util::is_int(req->posts["time_a"]) || !util::is_int(req->posts["time_b"])  )
+            TEAPOT_EXIT();
+
+        int time_a = std::atoi( req->posts["time_a"].c_str() );
+        int time_b = std::atoi( req->posts["time_b"].c_str() );
+
+        if(time_a == 0)
+            db->query("SELECT time," + req->posts["filter"] + " FROM data WHERE time <= " + req->posts["time_b"]);
+        else if (time_b == 0) 
+            db->query("SELECT time," + req->posts["filter"] + " FROM data WHERE time >= " + req->posts["time_a"]);
+        else
+            db->query("SELECT time," + req->posts["filter"] + " FROM data WHERE time >= " + req->posts["time_a"] + " AND time <= " + req->posts["time_b"]);
+
+    }else
+        TEAPOT_EXIT();
+
     db->store_result(); db->next_row();
     MYSQL_ROW row = db->get_row();
 
-    std::cout << "FROM get_data func: post = " << req->posts["filter"] << "\n";
-
     response_page->body << "[";
     while (row != NULL) {
+        std::cout << "Time: " << row[0] << ", Value: " << row[1];
         response_page->body << "{\"value\": " << row[1] << ", \"time\": " << row[0] << "},";
-        
+  
         db->next_row(); row = db->get_row();
     }
-    response_page->body.seekp(-1,response_page->body.cur); 
+    std::cout << "\n";
+//    response_page->body.seekp(-1,response_page->body.cur); 
+    response_page->body.seekp(-1, std::ios_base::end); 
     response_page->body << "]";
 
     response_page->response(client);
@@ -212,12 +242,14 @@ void reply(request_handler::request *req,
                 get_data(std::move(new_page), req, db_connection, client);
                 break;
             default:
+                new_page->set_status_code(INTERNAL_SERVER_ERROR);
+                new_page->response(client);
                 break;
         }
     }else if(req->url == "/logout" ) {
         logout(std::move(new_page), req, db_connection, client);
     }else {
-        new_page->body << req->url;
+        new_page->set_status_code(NOT_FOUND);
         new_page->response(client);
     }
 

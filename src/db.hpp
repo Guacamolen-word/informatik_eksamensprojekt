@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include "networking/errors.hpp"
+#include "util.hpp"
 
 #ifdef _WIN32
 #include<combaseapi.h>

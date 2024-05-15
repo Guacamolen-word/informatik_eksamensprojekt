@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Graphs</title>
+	<style>
+		.chart {
+			width: 50%;
+			height: 50%;
+		}
+	</style>
+</head>
+<body>
+	<dialog>
+		From: 
+		<input type="date" id="from" onchange="onChangeDate()">
+		<br>
+		 To: 
+		<input type="date" id="to" onchange="onChangeDate()">
+		<br>
+		<button disabled id="userdefinedupdate" onclick="update(document.getElementById('from').value, document.getElementById('to').value); document.querySelector('dialog').close()">Update</button>
+	</dialog>
+	<div class="chart">
+		<canvas id="myChart" aria-label="Hello ARIA World" role="img">Your browser doesn't support the canvas element. Try accessing the website through a different one.</canvas>
+	</div>
+	<br>
+    <input type="button" value="Hi">
+    <br>
+	<select name="period" id="what" onchange="onChangeOptions(this.value)">
+		<option value="week" selected>Last week</option>
+		<option value="month">Last month</option>
+		<option value="userdefined">User defined</option>
+	</select>
+    <span id="test"></span>
+    <script type="text/javascript">
+        const ctx = document.getElementById('myChart');
+        const data = [{time: 0, value: 5},{time: 1, value: 2},{time: 2, value: 3},{time: 3, value: 7}]
+          var chart = new Chart(ctx, {
+        type: 'line',
+        //normalized: true,
+        data: {
+              //labels: undefined,
+                  datasets: [{
+                    label: 'UV',
+                    data: [],
+                    borderWidth: 1
+                  }]
+            },
+        options: {
+			maintainAspectRatio: true,
+            scales: {
+                y: {
+                      beginAtZero: true
+                }
+            }
+        }
+  });
+
+  		function onChangeDate() {
+			if (document.getElementById("from").value != '' && document.getElementById("to").value != '') {
+				document.getElementById("userdefinedupdate").disabled = false
+			}
+		}
+
+  		function onChangeOptions(value) {
+			if (value != "userdefined") {
+				var day = new Date() 
+				day.setDate(day.getDate() + (value == 'week' ? 7 : 28)) 
+				update(new Date(), day)
+				console.log(value)
+			} else {
+				document.querySelector("dialog").showModal()
+			}
+			
+		}
+
+
+	function test() {
+		let request = new XMLHttpRequest();
+		// Options are either temperature or humidity
+		var post_data = "filter=temperature";
+		request.open('POST', "/data", true); 
+
+		// Webserver only supports one format for POST
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+		// Handle request once recieved
+		request.onload = function(event) {
+			// Check for errors
+            if(request.status == 200)  {
+                console.log(request.response);
+                var req = JSON.parse(request.response);
+                var x = req.map((dat) => dat.time);
+                var y = req.map((dat) => dat.value);
+                chart.data.labels.push(...x);
+                chart.data.datasets.forEach((dataset) => dataset.data.push(...y));
+
+                chart.update();
+
+                return request.response; 
+            }else{
+                console.log("ERROR: " + request.status);
+            }
+        }
+
+        request.send(post_data);
+
+	} 
+		
+    function update(a, b) {
+        chart.data.labels = []
+        chart.data.datasets.forEach((dataset) => dataset.data = [])
+        const c = Math.floor(new Date(a).getTime() / 1000)
+        const d = Math.floor(new Date(b).getTime() / 1000)
+        test();
+//        var req = JSON.parse(test());
+            
+ //       console.log(req);
+
+            /*
+			switch (a) {
+				case '*':
+					req = await test();
+					break;
+			
+				default:
+					console.log("hi");
+					break;
+			}
+            */
+
+        console.log(c + " " + d);
+        /*const req = await test().then(test => console.log(test))*//*await fetch(`/ind1/${c}/ind2/${d}`, {
+                method: 'POST'
+            }).then(res => res.json())*/
+        /*
+        var x = req.map((dat) => dat.time);
+        var y = req.map((dat) => dat.value);
+        chart.data.labels.push(...x);
+        chart.data.datasets.forEach((dataset) => dataset.data.push(...y));
+
+        chart.update();
+        */
+			
+    }
+	const wekkday = new Date()
+	wekkday.setDate(wekkday.getDate() + 7)
+    update(a = '*')
+
+	console.log(document.getElementById("from").value);
+
+    </script>
+</body>
+</html>

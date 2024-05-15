@@ -33,7 +33,7 @@
             <property name="height-request">30</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="text" translatable="yes">192.168.0.40</property>
+            <property name="text" translatable="yes">10.131.204.112</property>
           </object>
           <packing>
             <property name="x">100</property>

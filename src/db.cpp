@@ -34,8 +34,9 @@ db::~db() {
 
 
 enum errors db::query(std::string qur) {
-//    db_handler::clean_query(qur);
-    if(mysql_query(this->connection, qur.c_str()) != 0) {
+    
+    if(util::contains_terminating_char(qur) == true ||
+       mysql_query(this->connection, qur.c_str()) != 0) {
         return DB_ERROR;
     }
 
@@ -148,6 +149,5 @@ bool db::is_valid_session(std::string username, std::string session) {
 bool db::is_connected() {
     return this->connected;
 } 
-
 
 

@@ -39,6 +39,7 @@ void networking::ssl_client_handler(int client, db_handler::db *db_connection,
         delete[] buffer;
         return;
     }
+    buffer[req_size] = '\0';
 
     std::cout << buffer << '\n';
 

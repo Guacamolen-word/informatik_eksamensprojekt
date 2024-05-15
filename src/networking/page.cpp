@@ -208,10 +208,13 @@ void page::print_page_ssl(SSL *c_ssl) {
     if(this->binary_file) {
         SSL_write(c_ssl, ("Content-Transfer-Encoding: binary\r\n\r\n"), 37);
         SSL_write(c_ssl, &this->binary[0], this->binary.size());
-    }else
-        SSL_write(c_ssl, ("\r\n\r\n" +
-                    this->header +  this->body.str() + this->footer + "\r\n").c_str(),
-                6 + this->header.length() + this->body.str().length() + this->footer.length());
+    }else if(this->type != HTML) {
+        SSL_write(c_ssl, ("\r\n" + this->body.str()).c_str(), 2 + this->body.str().length());
+    }else{
+        SSL_write(c_ssl, ("\r\n" +
+                    this->header +  this->body.str() + this->footer).c_str(),
+                2 + this->header.length() + this->body.str().length() + this->footer.length());
+    }
 }
 
 enum filetype page::get_filetype() {
@@ -220,10 +223,6 @@ enum filetype page::get_filetype() {
 
 
 void page::set_status_code(enum errors status_code) {
-    if(status_code > INTERNAL_SERVER_ERROR) {
-        this->status_code = INTERNAL_SERVER_ERROR;
-        return;
-    }
     this->status_code = status_code;
 }
 
