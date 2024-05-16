@@ -1,0 +1,4 @@
+POST /update-sensor HTTP/1.1
+Host: https://cloudpotato.xyz/graphs.html
+{api_key: "key", sensor_name: "hum2", temperature: val1, humidity: val2, pressure: val3}
+Content-Type: application/json
