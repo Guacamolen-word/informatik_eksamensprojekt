@@ -27,10 +27,10 @@ build_windows:
 	$(CC) -std=c++20 $(OBJ)/*.o $(LD_FLAGS_WINDOWS) -o server
 
 run:
-	./server
+	./server --gui
 
 gdb:
-	gdb ./server
+	gdb ./server --gui
 
 clean:
 	rm -f $(OBJ)/*.o

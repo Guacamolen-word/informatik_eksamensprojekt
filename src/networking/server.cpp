@@ -42,7 +42,7 @@ void networking::ssl_client_handler(int client, db_handler::db *db_connection,
     }
     buffer[req_size] = '\0';
 
-    std::cout << buffer << '\n';
+    //std::cout << buffer << '\n';
 
     // Begin parsing HTTP request
     request_handler::request *new_request = (new request_handler::request(buffer));
@@ -84,6 +84,8 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
         delete[] buffer;
         return;
     }
+
+//    std::cout << buffer << std::endl;
 
     // Prepare client stream for replying
     client_stream = fdopen(client, "w+");

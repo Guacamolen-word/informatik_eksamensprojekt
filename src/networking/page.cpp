@@ -13,15 +13,12 @@ response_handler::parse_filetype(std::string_view url) {
         return HTML;
 
     std::string_view file_format = url.substr(dot_pos);
-    std::cout << "file format: " << file_format << std::endl;
 
     if( file_format.compare(".css") == 0  ) {
-        std::cout << "found css file" << std::endl;
         return CSS;
     } else if( file_format.compare(".js") == 0 ) {
         return JS;
     }else if( file_format.compare(".png") == 0 ) {
-        std::cout << "found png file" << std::endl;
         return PNG;
     }
 
@@ -39,7 +36,6 @@ enum errors response_handler::read_file(std::string file_path, std::string &out)
 
     if(!file.good()) {
         return NOT_FOUND;
-        std::cout << "not found file\n";
     }
 
     file.seekg(0, std::ios::end);
@@ -49,22 +45,6 @@ enum errors response_handler::read_file(std::string file_path, std::string &out)
     out.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
 
-/*
-    std::ifstream file(file_path, std::ios::binary);
-    std::stringstream out_stream;
-
-    std::cout << "file_path: " << file_path << std::endl;
-
-    if(!file.good()) {
-        return NOT_FOUND;
-        std::cout << "not found file\n";
-    }
-
-
-    out_stream << file.rdbuf();
-    out = out_stream.str();
-    //std::cout << "read: " << out << std::endl;
-*/
     return OK;
 }
 
@@ -78,7 +58,6 @@ enum errors response_handler::read_binary_file(std::string file_path, std::vecto
 
     if(binary_file == NULL) {
         return NOT_FOUND;
-        std::cout << "not found file\n";
     }
 
     fseek(binary_file, 0L, SEEK_END);
@@ -147,12 +126,18 @@ void page::print_page(FILE *client_stream) {
         case PNG:
             content_type = "image/png";
             break;
+        case JS:
+            content_type = "application/javascript";
+            break;
+        case JSON:
+            content_type = "application/json";
+            break;
         default:
             content_type = "text/html";
             break;
     }
 
-    fprintf(client_stream, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n", content_type.c_str());
+    fprintf(client_stream, "HTTP/1.1 %s\r\nContent-Type: %s\r\n", errors_msg[this->status_code].c_str(), content_type.c_str());
 
     if(this->type == HTML) {
         // Add cookies to response
@@ -161,8 +146,15 @@ void page::print_page(FILE *client_stream) {
         }
     }
 
-    fprintf(client_stream, "\r\n\r\n%s%s%s\r\n",
-            this->header.c_str(), this->body.str().c_str(), this->footer.c_str() );
+    if(this->binary_file) {
+        fprintf(client_stream, "Content-Transfer-Encoding: binary\r\n\r\n");
+        fprintf(client_stream, &this->binary[0], this->binary.size());
+    }else if(this->type != HTML) {
+        fprintf(client_stream, "\r\n%s", (this->body.str()).c_str() );
+    }else{
+        fprintf(client_stream, "\r\n%s%s%s",
+                    this->header.c_str(), this->body.str().c_str(), this->footer.c_str());
+    }
 
 }
 

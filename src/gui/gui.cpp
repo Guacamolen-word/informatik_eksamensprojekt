@@ -41,6 +41,7 @@ void gui::exit_callback(GtkWindow *window) {
         gui::button_stop_callback(NULL);
     }
     gtk_window_close(window);
+    exit(0);
 }
 
 void gui::button_start_callback(GtkButton *button) {

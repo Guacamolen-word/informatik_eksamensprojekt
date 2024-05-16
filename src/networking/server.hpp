@@ -72,7 +72,7 @@ namespace networking {
         public:
             server(std::string ip, short port, bool ssl = false,
                     std::string certificate = "", std::string key = "",
-                    const char *db_user = "root", const char *db_password = "", const char *db_name = "cloudpotato");
+                    const char *db_user = "root", const char *db_password = "123", const char *db_name = "cloudpotato");
             ~server();
 
             void start();

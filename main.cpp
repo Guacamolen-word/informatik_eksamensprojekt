@@ -31,6 +31,33 @@
     return;\
 }
 
+void upload(std::unique_ptr<page> response_page, 
+              request_handler::request *req,
+              db_handler::db *db,
+              struct networking::client_stream client) {
+
+
+    if(!request_handler::key_exists("time", req->posts) ||
+       !request_handler::key_exists("humidity", req->posts) ||
+       !request_handler::key_exists("temp", req->posts) ) 
+
+    {
+        TEAPOT_EXIT();
+    }
+
+    std::cout << "Got data: time = " 
+              << req->posts["time"] 
+              << ", and temp = " 
+              << req->posts["temp"] << "\n";
+
+    db->query("INSERT INTO data(time, temperature, humidity) VALUES(" + req->posts["time"] + "," + req->posts["temp"] + "," + req->posts["humidity"] + ")");
+
+    response_page->set_status_code(OK);
+    response_page->body << "Tak for data - Adam :)\n";
+    response_page->response(client);
+}
+
+
 void graph(std::unique_ptr<page> response_page, 
               request_handler::request *req,
               db_handler::db *db,
@@ -153,6 +180,10 @@ void login_page_post(std::unique_ptr<page> response_page,
 
     if(request_handler::key_exists("password", req->posts) &&
             request_handler::key_exists("username", req->posts)) {
+
+        std::cout << "Got user: " << req->posts["username"] << "got pass: " << req->posts["password"] << "\n";
+        std::cout << "row: " << std::string(row[0]) << std::endl;
+
         if( row != NULL && req->posts["password"] == std::string(row[0])  ) {
             response_page->set_header("html/header.html");
             response_page->set_footer("html/footer.html");
@@ -193,17 +224,70 @@ void signal_handler(int sig) {
     exit(sig);
 }
 
+void print_help() {
+    std::cout << "Usage: cloudpotato [OPTION] [ARG]\n\n"
+              << "Options:\n"
+              << "--gui\t\tStart GUI control panel"
+              << "\n\nCLI-mode only:\n"
+              << "--ip [IP]\t\tSpecify IP to bindh\n"
+              << "--port [PORT]\t\tSpecify port to use\n"
+              << "--https [CERT] [KEY]\t\tEnable HTTPS\n"
+              << std::endl;
+}
+
 int main(int argc, char **argv) {
     std::signal(SIGINT, signal_handler);
 
-    gtk_init(&argc, &argv);
-    gui::load_gui();
+    if(argc < 2) {
+        print_help();
+        return 0;
+    }
 
-    /*
-    std::unique_ptr<networking::server> server (new networking::server("10.0.2.15", 8080, true, 
-                "./certs/cert.pem", "./certs/key.pem"));
+    if( std::strcmp( argv[1], "--gui"  ) == 0 ) {
+        gtk_init(&argc, &argv);
+        gui::load_gui();
+
+        return 0;
+    }
+
+    int ip = 0, port = 0, cert = 0, key = 0;
+    bool ssl = false;
+
+    for (int i = 1; i < argc; i++) {
+
+        if( std::strcmp(argv[i], "--ip") == 0  ) {
+            ip = i + 1;
+            i++;
+        }else if( std::strcmp(argv[i], "--port") == 0  ) {
+            port = i + 1;
+            i++;
+        }else if( std::strcmp(argv[i], "--https") == 0  ) {
+            ssl = true;
+            cert = i + 1;
+            key = cert + 1;
+            i += 2;
+        }
+
+    }
+
+    if(!util::is_int(argv[port])) {
+        std::cout << "Port must be number" << std::endl;
+        return 0;
+    }
+
+    std::unique_ptr<networking::server> server;
+
+    if(ssl) {
+        std::cout << "ip: " << argv[ip] << "port: " << argv[port] << "cert: " << argv[cert] << ", " << argv[key] << std::endl;
+        server = std::unique_ptr<networking::server>(new networking::server(
+                    argv[ip], std::atoi(argv[port]), true, argv[cert], argv[key]));
+    }else {
+        server = std::unique_ptr<networking::server>(new networking::server(
+                    argv[ip], std::atoi(argv[port]), false, " ", " "));
+    }
+
     server->start();
-*/
+
     return 0;
 }
 
@@ -231,7 +315,10 @@ void reply(request_handler::request *req,
             default:
                 break;
          }
-    }else if(req->url == "/graph") {
+
+    } else if(req->url == "/upload"){
+        upload(std::move(new_page), req, db_connection, client);
+    } else if(req->url == "/graph") {
         graph(std::move(new_page),
                 req, db_connection, client);
     }else if(req->url == "/data" ) {
