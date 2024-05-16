@@ -1,4 +1,5 @@
-
+ //[ Adam ]
+ 
 #include "page.hpp"
 
 using response_handler::page;

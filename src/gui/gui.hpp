@@ -1,4 +1,5 @@
-#pragma once
+ //[ Adam ]
+#pragma once 
 
 #include <gtk-3.0/gtk/gtk.h>
 #include <gtk/gtkx.h>

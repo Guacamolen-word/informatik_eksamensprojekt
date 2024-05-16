@@ -1,4 +1,5 @@
-
+ //[ Adam ]
+ 
 #include "gui.hpp"
 
 
@@ -21,6 +22,7 @@ void gui::load_gui() {
     gui::cert_file = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_cert"));
     gui::key_file = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_key"));
     gui::https_checkbox = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "check_https"));
+	g_signal_connect(window, "destroy", G_CALLBACK(gui::exit_callback), NULL);
 
 //    gtk_window_set_default_size(GTK_WINDOW(window), 350, 380);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -35,6 +37,9 @@ void gui::load_gui() {
 }
 
 void gui::exit_callback(GtkWindow *window) {
+    if(gui::server != NULL) {
+        gui::button_stop_callback(NULL);
+    }
     gtk_window_close(window);
 }
 
@@ -83,6 +88,7 @@ void gui::button_stop_callback(GtkButton *button) {
     server->stop();
     server_thread.join();
 
+    gui::server = NULL;
     g_signal_handler_disconnect(gui::start_stop_button, gui::signal_handler);
     gtk_button_set_label(gui::start_stop_button , "Start server");
     gui::signal_handler =

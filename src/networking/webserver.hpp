@@ -1,4 +1,5 @@
-#pragma once
+ //[ Adam ]
+#pragma once 
 
 #include "cookie.hpp"
 #include "page.hpp"

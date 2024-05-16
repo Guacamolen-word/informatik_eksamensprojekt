@@ -1,6 +1,6 @@
-#pragma once
+ //[ Adam ]
+#pragma once 
 // This namespace is used for handling connections to a (local) MariaDB or MySQL database
-// TODO: Check for ; or \n/\r in query variables to fix SQL injection exploit
 
 #include <mysql/mysql.h>
 #include <string>

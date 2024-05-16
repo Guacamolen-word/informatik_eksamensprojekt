@@ -1,4 +1,5 @@
-
+ //[ Adam ]
+ 
 #include "cookie.hpp"
 
 

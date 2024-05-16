@@ -1,4 +1,5 @@
-
+ //[ Adam ]
+ 
 #include "util.hpp"
 
 bool util::contains_terminating_char(std::string_view str) {

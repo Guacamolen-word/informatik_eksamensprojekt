@@ -1,4 +1,5 @@
-
+ //[ Adam ]
+ 
 #include "json.hpp"
 
 using json_handler::json;

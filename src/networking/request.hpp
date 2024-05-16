@@ -1,4 +1,5 @@
-#pragma once
+ //[ Adam ]
+#pragma once 
 // This namespace is used for parsing HTTP requests.
 // Currently it only parses the bare essentials e.g.
 // cookies, requested URL and x-www-form-urlenconded 

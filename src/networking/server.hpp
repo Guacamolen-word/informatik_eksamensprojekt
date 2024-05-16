@@ -1,4 +1,5 @@
-#pragma once
+ //[ Adam ]
+#pragma once 
 // Socket connections are made here
 
 // openssl libaries are used for SSL encryption
