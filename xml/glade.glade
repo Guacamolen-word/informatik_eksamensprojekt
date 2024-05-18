@@ -168,7 +168,7 @@
             <property name="can-focus">True</property>
             <property name="visibility">False</property>
             <property name="invisible-char">●</property>
-            <property name="text" translatable="yes">123</property>
+            <property name="text" translatable="yes"></property>
           </object>
           <packing>
             <property name="x">400</property>
