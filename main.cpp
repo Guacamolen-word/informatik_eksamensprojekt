@@ -31,6 +31,76 @@
     return;\
 }
 
+
+void about(std::unique_ptr<page> response_page, 
+              request_handler::request *req,
+              db_handler::db *db,
+              struct networking::client_stream client) {
+
+    VALDIDATE_SESION();
+
+    response_page->set_header("html/header.html");
+    response_page->set_footer("html/footer.html");
+
+    std::string body_content; response_handler::read_file("html/about.html", body_content);
+    response_page->body << body_content;
+
+    response_page->response(client);
+
+}
+
+void home(std::unique_ptr<page> response_page, 
+              request_handler::request *req,
+              db_handler::db *db,
+              struct networking::client_stream client) {
+
+    VALDIDATE_SESION();
+
+    response_page->set_header("html/header.html");
+    response_page->set_footer("html/footer.html");
+
+    std::string body_content; response_handler::read_file("html/home.html", body_content);
+    response_page->body << body_content;
+
+    response_page->response(client);
+
+}
+
+void raw_data(std::unique_ptr<page> response_page, 
+              request_handler::request *req,
+              db_handler::db *db,
+              struct networking::client_stream client) {
+
+    VALDIDATE_SESION();
+
+    response_page->set_filetype(JSON);
+
+    db->query("SELECT time,temperature,humidity FROM data");
+
+    db->store_result(); db->next_row();
+    MYSQL_ROW row = db->get_row();
+
+    if(row == NULL) {
+        response_page->body << "[ { \"message\": \"No data found in SQL database\"  }  ]";
+        response_page->response(client);
+        return;
+    }
+
+    response_page->body << "[";
+    while (row != NULL) {
+        response_page->body << "{ \"time\": " << row[0] << ", \"temperature\": " << row[1] << ", \"humidity\": " << row[2] << "},";
+        db->next_row();
+        row = db->get_row();
+    }
+
+    // Override extra comma at the end of the string with ']'
+    response_page->body.seekp(-1, std::ios_base::end); 
+    response_page->body << "]";
+
+    response_page->response(client);
+
+}
+
 void upload(std::unique_ptr<page> response_page, 
               request_handler::request *req,
               db_handler::db *db,
@@ -298,6 +368,8 @@ void reply(request_handler::request *req,
 
     std::unique_ptr<page> new_page (new page( req->url ));
 
+    // If the request url is a file, then simply return the file
+    // otherwise call one of the dynamic page functions
     if(new_page->get_filetype() != HTML) {
         new_page->response(client);
         return;
@@ -313,18 +385,15 @@ void reply(request_handler::request *req,
                 login_page_post(std::move(new_page), req, db_connection, client);
                 break;
             default:
+                new_page->set_status_code(INTERNAL_SERVER_ERROR);
+                new_page->response(client);
                 break;
          }
 
-    } else if(req->url == "/upload"){
-        upload(std::move(new_page), req, db_connection, client);
-    } else if(req->url == "/graph") {
-        graph(std::move(new_page),
-                req, db_connection, client);
-    }else if(req->url == "/data" ) {
+    } else if(req->url == "/data" ) {
         switch (req->request_type) {
             case GET:
-                get_data(std::move(new_page), req, db_connection, client);
+                raw_data(std::move(new_page), req, db_connection, client);
                 break;
             case POST:
                 get_data(std::move(new_page), req, db_connection, client);
@@ -334,6 +403,14 @@ void reply(request_handler::request *req,
                 new_page->response(client);
                 break;
         }
+    } else if(req->url == "/upload"){
+        upload(std::move(new_page), req, db_connection, client);
+    } else if (req->url == "/about") {
+        about(std::move(new_page), req, db_connection, client);
+    } else if (req->url == "/home") {
+        home(std::move(new_page), req, db_connection, client);
+    } else if(req->url == "/graph") {
+        graph(std::move(new_page), req, db_connection, client);
     }else if(req->url == "/logout" ) {
         logout(std::move(new_page), req, db_connection, client);
     }else {

@@ -84,8 +84,7 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
         delete[] buffer;
         return;
     }
-
-//    std::cout << buffer << std::endl;
+    buffer[req_size] = '\0';
 
     // Prepare client stream for replying
     client_stream = fdopen(client, "w+");
@@ -97,7 +96,9 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
 
     // Parse HTTP request
     request_handler::request *new_request = (new request_handler::request(buffer));
-    struct networking::client_stream new_client_stream {false, {client_stream}};
+    struct networking::client_stream new_client_stream;
+    new_client_stream.ssl = false;
+    new_client_stream.tcp = client_stream;
 
     // Mutex to prevent race condition
     // TODO: Add support for multiple DB connections

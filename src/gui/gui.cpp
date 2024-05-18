@@ -22,7 +22,7 @@ void gui::load_gui() {
     gui::cert_file = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_cert"));
     gui::key_file = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_key"));
     gui::https_checkbox = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "check_https"));
-	g_signal_connect(window, "destroy", G_CALLBACK(gui::exit_callback), NULL);
+	g_signal_connect(window, "destroy", G_CALLBACK(gui::exit_callback), window);
 
 //    gtk_window_set_default_size(GTK_WINDOW(window), 350, 380);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -40,8 +40,8 @@ void gui::exit_callback(GtkWindow *window) {
     if(gui::server != NULL) {
         gui::button_stop_callback(NULL);
     }
-    gtk_window_close(window);
     exit(0);
+    gtk_window_close(window);
 }
 
 void gui::button_start_callback(GtkButton *button) {
@@ -49,15 +49,24 @@ void gui::button_start_callback(GtkButton *button) {
 
     int port = std::atoi( gtk_entry_get_text(gui::port_entry) );
 
+
     server = NULL;
     if( gtk_toggle_button_get_active( gui::https_checkbox ) == TRUE  ) {
+
+        char *cert = gtk_file_chooser_get_filename(gui::cert_file);
+        char *key = gtk_file_chooser_get_filename(gui::key_file);
+        if(cert == NULL || key == NULL)
+            return;
+
         gui::server = new networking::server( 
                 gtk_entry_get_text(gui::ip_entry),
                 port, 
-                true, "./certs/cert.pem", "./certs/key.pem",
+                true, cert, key,
                 gtk_entry_get_text(gui::user_entry),
                 gtk_entry_get_text(gui::password_entry),
                 gtk_entry_get_text(gui::db_entry));
+
+        g_free(cert); g_free(key);
     }else {
         gui::server = new networking::server(
                 gtk_entry_get_text(gui::ip_entry),

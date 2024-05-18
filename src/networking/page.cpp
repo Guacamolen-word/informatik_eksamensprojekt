@@ -19,6 +19,7 @@ response_handler::parse_filetype(std::string_view url) {
     } else if( file_format.compare(".js") == 0 ) {
         return JS;
     }else if( file_format.compare(".png") == 0 ) {
+        std::cout << "Parsed PNG from URL\n";
         return PNG;
     }
 
@@ -74,8 +75,10 @@ enum errors response_handler::read_binary_file(std::string file_path, std::vecto
 
 page::page(std::string &url)
 {
+    std::cout << "Parsing URL:" << url << "\n";
     this->type = parse_filetype(url);
     this->status_code = OK;
+    this->binary_file = false;
 
     if(this->type == PNG) {
         this->binary_file = true;
@@ -146,9 +149,9 @@ void page::print_page(FILE *client_stream) {
         }
     }
 
-    if(this->binary_file) {
+    if(this->binary_file == true) {
         fprintf(client_stream, "Content-Transfer-Encoding: binary\r\n\r\n");
-        fprintf(client_stream, &this->binary[0], this->binary.size());
+        std::fwrite(&this->binary[0], this->binary.size(), 1, client_stream);
     }else if(this->type != HTML) {
         fprintf(client_stream, "\r\n%s", (this->body.str()).c_str() );
     }else{

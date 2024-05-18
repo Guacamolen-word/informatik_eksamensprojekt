@@ -33,7 +33,7 @@
             <property name="height-request">30</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="text" translatable="yes">10.131.202.201</property>
+            <property name="text" translatable="yes">127.0.0.1</property>
           </object>
           <packing>
             <property name="x">100</property>
@@ -87,7 +87,7 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">False</property>
-            <property name="active">True</property>
+            <property name="active">False</property>
             <property name="draw-indicator">True</property>
           </object>
           <packing>
