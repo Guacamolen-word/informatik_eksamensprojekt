@@ -1,4 +1,5 @@
 *.txt
+*.dll
 server
 *.pem
 *.exe
