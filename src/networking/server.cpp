@@ -70,7 +70,9 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
 
     // Allocate memory for HTTP request
     char *buffer = (new char[CLIENT_REQUEST_SIZE]);
-    FILE *client_stream;
+#ifndef _WIN32
+    FILE *client_stream = NULL;
+#endif
 
     // Read HTTP request
     ssize_t req_size = recv(client, buffer, CLIENT_REQUEST_SIZE, 0);
@@ -86,19 +88,27 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
     }
     buffer[req_size] = '\0';
 
+//    std::cout << buffer << std::endl;
     // Prepare client stream for replying
+  
+#ifndef _WIN32 
     client_stream = fdopen(client, "w+");
     if(client_stream == NULL) {
         std::cout << "Couldn't create client stream\n";
         delete[] buffer;
         return;
     }
+#endif
 
     // Parse HTTP request
     request_handler::request *new_request = (new request_handler::request(buffer));
     struct networking::client_stream new_client_stream;
     new_client_stream.ssl = false;
+#ifndef _WIN32
     new_client_stream.tcp = client_stream;
+#else
+    new_client_stream.tcp = client;
+#endif
 
     // Mutex to prevent race condition
     // TODO: Add support for multiple DB connections
@@ -106,7 +116,10 @@ void networking::client_handler(int client, db_handler::db *db_connection) {
 
     reply(new_request, new_client_stream, db_connection);
 
+//    delete client_stream;
+#ifndef _WIN32
     fclose(client_stream);
+#endif
 
     CLOSE_SOCKET(client);
 

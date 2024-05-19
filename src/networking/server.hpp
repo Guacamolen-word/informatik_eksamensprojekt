@@ -33,6 +33,8 @@
     #include <winsock2.h>
     #include <windows.h>
     #include <Ws2tcpip.h>
+    #include <fcntl.h>
+    #include <io.h>
 
 #define CLOSE_SOCKET(SOCKET) closesocket(SOCKET)
 #endif
@@ -53,7 +55,11 @@ namespace networking {
     struct client_stream {
         bool ssl;
         union {
+#ifndef _WIN32
             FILE *tcp;
+#else
+	    int tcp;
+#endif
             SSL *https;
         };
     };

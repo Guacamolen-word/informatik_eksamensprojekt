@@ -19,7 +19,7 @@ response_handler::parse_filetype(std::string_view url) {
     } else if( file_format.compare(".js") == 0 ) {
         return JS;
     }else if( file_format.compare(".png") == 0 ) {
-        std::cout << "Parsed PNG from URL\n";
+//        std::cout << "Parsed PNG from URL\n";
         return PNG;
     }
 
@@ -75,7 +75,7 @@ enum errors response_handler::read_binary_file(std::string file_path, std::vecto
 
 page::page(std::string &url)
 {
-    std::cout << "Parsing URL:" << url << "\n";
+    //std::cout << "Parsing URL:" << url << "\n";
     this->type = parse_filetype(url);
     this->status_code = OK;
     this->binary_file = false;
@@ -115,7 +115,14 @@ void page::add_cookie(struct cookie new_cookie) {
 }
 
 // Output page over non encrypted socket connection
-void page::print_page(FILE *client_stream) {
+#ifndef _WIN32
+void page::print_page(FILE *client_stream)
+#else
+void page::print_page(int client_stream)
+#endif
+{
+
+
     std::string content_type;
 
     // Determine response type
@@ -140,23 +147,50 @@ void page::print_page(FILE *client_stream) {
             break;
     }
 
+#ifndef _WIN32
     fprintf(client_stream, "HTTP/1.1 %s\r\nContent-Type: %s\r\n", errors_msg[this->status_code].c_str(), content_type.c_str());
+#else
+    send(client_stream, ( "HTTP/1.1 " + errors_msg[this->status_code] + "\r\nContent-Type: " + content_type + "\r\n").c_str(),
+		    27 + errors_msg[this->status_code].length() + content_type.length(), 0  );
+#endif
 
     if(this->type == HTML) {
         // Add cookies to response
         for(auto cookie : this->cookies) {
+#ifndef _WIN32
             fprintf(client_stream, "Set-Cookie: %s=%s\r\n", cookie.name.c_str(), cookie.value.c_str());
+#else
+	    send(client_stream,
+                    ("Set-Cookie: " + cookie.name + "=" +  cookie.value + "\r\n").c_str(),
+                    15  + cookie.name.length() + cookie.value.length(), 0);
+#endif
         }
     }
 
     if(this->binary_file == true) {
+#ifndef _WIN32
         fprintf(client_stream, "Content-Transfer-Encoding: binary\r\n\r\n");
         std::fwrite(&this->binary[0], this->binary.size(), 1, client_stream);
+#else
+        send(client_stream, ("Content-Transfer-Encoding: binary\r\n\r\n"), 37, 0);
+        send(client_stream, &this->binary[0], this->binary.size(), 0);
+#endif
+
     }else if(this->type != HTML) {
+#ifndef _WIN32
         fprintf(client_stream, "\r\n%s", (this->body.str()).c_str() );
+#else
+        send(client_stream, ("\r\n" + this->body.str()).c_str(), 2 + this->body.str().length(), 0);
+#endif
     }else{
+#ifndef _WIN32
         fprintf(client_stream, "\r\n%s%s%s",
                     this->header.c_str(), this->body.str().c_str(), this->footer.c_str());
+#else
+        send(client_stream, ("\r\n" +
+                    this->header +  this->body.str() + this->footer).c_str(),
+                2 + this->header.length() + this->body.str().length() + this->footer.length(), 0);
+#endif
     }
 
 }

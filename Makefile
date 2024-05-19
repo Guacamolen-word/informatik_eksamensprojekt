@@ -10,7 +10,7 @@ DEBUG_FLAGS = -g
 RELEASE_FLAGS = -O2
 
 LD_FLAGS = -rdynamic -lpthread -lm -luuid -lcrypto -lssl $(shell mariadb_config --libs) $(shell pkg-config --libs gtk+-3.0)
-LD_FLAGS_WINDOWS = -lole32 -lpthread -lws2_32 -lm -luuid -lcrypto -lssl $(shell mariadb_config --libs) $(shell pkg-config --libs gtk+-3.0)
+LD_FLAGS_WINDOWS = -mwindows -Wl,--export-all-symbols -lole32 -lpthread -lws2_32 -lm -luuid -lcrypto -lssl $(shell mariadb_config --libs) $(shell pkg-config --libs gtk+-3.0)
 
 debug:
 	$(CC) -c $(SRC) $(CFLAGS) $(DEBUG_FLAGS) $(LIB)

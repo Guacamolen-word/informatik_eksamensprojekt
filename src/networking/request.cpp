@@ -65,6 +65,12 @@ request::request(char *http_request) {
     next_pos = req.find_first_of(' ');
     this->url = req.substr(0, next_pos);
 
+    int start_of_post = this->url.find('?');
+    if(start_of_post != -1) {
+        this->get_post(this->url.substr(start_of_post+1, url.find(' ') - start_of_post + 1));
+        this->url = url.substr(0, start_of_post);
+    }
+
     // Ignore the remaining HTTP/x.x 
     next_pos = req.find_first_of('\n');
 

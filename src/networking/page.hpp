@@ -37,7 +37,11 @@ namespace response_handler {
             std::vector<struct cookie> cookies;
             bool binary_file;
 
+#ifndef _WIN32
             void print_page(FILE *client_stream);
+#else
+            void print_page(int client_stream);
+#endif
             void print_page_ssl(SSL *c_ssl);
         public:
             page(std::string &url);

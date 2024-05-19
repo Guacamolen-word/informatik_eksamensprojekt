@@ -115,10 +115,10 @@ void upload(std::unique_ptr<page> response_page,
         TEAPOT_EXIT();
     }
 
-    std::cout << "Got data: time = " 
-              << req->posts["time"] 
-              << ", and temp = " 
-              << req->posts["temp"] << "\n";
+//    std::cout << "Got data: time = " 
+//              << req->posts["time"] 
+//              << ", and temp = " 
+//              << req->posts["temp"] << "\n";
 
     db->query("INSERT INTO data(time, temperature, humidity) VALUES(" + req->posts["time"] + "," + req->posts["temp"] + "," + req->posts["humidity"] + ")");
 
@@ -157,8 +157,8 @@ void get_data(std::unique_ptr<page> response_page,
     response_page->set_filetype(JSON);
 
     if( !request_handler::key_exists("time_a", req->posts) && !request_handler::key_exists("time_b", req->posts) ) {
-        std::cout << "Fetching all data\n";
-        db->query("SELECT time," + req->posts["filter"] + " FROM data");
+        //std::cout << "Fetching all data\n";
+        db->query("SELECT time," + req->posts["filter"] + " FROM data ORDER BY time ASC");
 
     }else if(request_handler::key_exists("time_a", req->posts) && request_handler::key_exists("time_b", req->posts)) {
         if( !util::is_int(req->posts["time_a"]) || !util::is_int(req->posts["time_b"])  )
@@ -182,12 +182,12 @@ void get_data(std::unique_ptr<page> response_page,
 
     response_page->body << "[";
     while (row != NULL) {
-        std::cout << "Time: " << row[0] << ", Value: " << row[1];
+//        std::cout << "Time: " << row[0] << ", Value: " << row[1];
         response_page->body << "{\"value\": " << row[1] << ", \"time\": " << row[0] << "},";
   
         db->next_row(); row = db->get_row();
     }
-    std::cout << "\n";
+    //std::cout << "\n";
 //    response_page->body.seekp(-1,response_page->body.cur); 
     response_page->body.seekp(-1, std::ios_base::end); 
     response_page->body << "]";
@@ -251,8 +251,8 @@ void login_page_post(std::unique_ptr<page> response_page,
     if(request_handler::key_exists("password", req->posts) &&
             request_handler::key_exists("username", req->posts)) {
 
-        std::cout << "Got user: " << req->posts["username"] << "got pass: " << req->posts["password"] << "\n";
-        std::cout << "row: " << std::string(row[0]) << std::endl;
+//        std::cout << "Got user: " << req->posts["username"] << "got pass: " << req->posts["password"] << "\n";
+//        std::cout << "row: " << std::string(row[0]) << std::endl;
 
         if( row != NULL && req->posts["password"] == std::string(row[0])  ) {
             response_page->set_header("html/header.html");
@@ -308,16 +308,21 @@ void print_help() {
 int main(int argc, char **argv) {
     std::signal(SIGINT, signal_handler);
 
+#ifndef _WIN32
     if(argc < 2) {
         print_help();
         return 0;
     }
 
     if( std::strcmp( argv[1], "--gui"  ) == 0 ) {
-        gtk_init(&argc, &argv);
-        gui::load_gui();
+#endif
+    gtk_init(&argc, &argv);
+    gui::load_gui();
+#ifdef WIN32
+    return 0;
+#endif
 
-        return 0;
+#ifndef _WIN32
     }
 
     int ip = 0, port = 0, cert = 0, key = 0;
@@ -359,6 +364,7 @@ int main(int argc, char **argv) {
     server->start();
 
     return 0;
+#endif
 }
 
 
