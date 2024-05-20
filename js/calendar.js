@@ -1,3 +1,4 @@
+// <Tobias>
 class dayE {
     constructor(e) {
         this.element = document.createElement("td")
